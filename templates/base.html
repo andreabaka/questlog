@@ -80,13 +80,14 @@
     </ul>
     <ul>
       <li><a href="{% url 'home' %}">Home</a></li>
-      <li><a href="{% url 'quest_list' %}">Quests</a></li>
+      <li><a href="{% url 'today' %}">Today</a></li>
       <li><a href="{% url 'active_quests' %}">Active</a></li>
+      <li><a href="{% url 'quest_create' %}">+ Add Quest</a></li>
+      <li>|</li>
+      <li><a href="{% url 'stats' %}">Stats</a></li>
+      <li><a href="{% url 'quest_list' %}">Quests</a></li>
       <li><a href="{% url 'log_list' %}">Logs</a></li>
       <li><a href="{% url 'category_list' %}">Categories</a></li>
-      <li><a href="{% url 'quest_create' %}">+ Add Quest</a></li>
-      <li><a href="{% url 'today' %}">Today</a></li>
-      <li><a href="{% url 'stats' %}">Stats</a></li>
 
     </ul>
   </nav>

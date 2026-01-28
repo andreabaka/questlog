@@ -1,4 +1,5 @@
 # Standard library
+import random
 from datetime import timedelta
 
 # Django core
@@ -519,22 +520,35 @@ def logger_roll_payout(request, pk):
 
 @login_required
 def today_page(request):
-    # Mode: same semantics you decided earlier.
-    # If your current rule is:
-    #   mode=limited => only limited_mobility=True
-    #   mode=normal  => include BOTH limited and non-limited
-    # then normal means "no filter".
     mode = request.GET.get("mode", "normal").lower()
     limited_only = (mode == "limited")
+    shuffle = request.GET.get("shuffle") == "1"
 
     # Active quests
     qs = Quest.objects.active().select_related("category")
-
     if limited_only:
         qs = qs.filter(limited_mobility=True)
-    # else: normal = include both, no filter
 
-    quests = list(qs.order_by("-updated_at")[:3])  # or order_by("?") for random-ish
+    # ----- Stable daily random pick (reroll only on shuffle) -----
+    today = timezone.localdate()
+    session_key = f"today_pick:{today.isoformat()}:{mode}"
+
+    picked_ids = request.session.get(session_key)
+
+    if shuffle or not picked_ids:
+        all_ids = list(qs.values_list("id", flat=True))
+        if len(all_ids) <= 3:
+            picked_ids = all_ids
+        else:
+            picked_ids = random.sample(all_ids, 3)
+        request.session[session_key] = picked_ids
+
+    # Fetch quests in the same order as picked_ids
+    if picked_ids:
+        order = Case(*[When(id=pk, then=pos) for pos, pk in enumerate(picked_ids)])
+        quests = list(qs.filter(id__in=picked_ids).order_by(order))
+    else:
+        quests = []
 
     # Today window: [today_start, tomorrow_start)
     now = timezone.now()
@@ -548,26 +562,19 @@ def today_page(request):
         .order_by("-timestamp")
     )
 
-    # Totals
     totals = today_logs_qs.aggregate(
         sessions_started=Count("id"),
-        completed_sessions=Count("id", filter=Logger.objects.filter(completed=True).query.where),  # see note below
+        completed_sessions=Count("id", filter=Q(completed=True)),
         total_payout=Sum("payout"),
     )
-
-    # Django 6 note: easiest / clearest is to compute completed separately:
-    sessions_started = totals["sessions_started"] or 0
-    total_payout = totals["total_payout"] or 0
-
-    completed_sessions = today_logs_qs.filter(completed=True).count()
 
     context = {
         "mode": mode,
         "quests": quests,
-        "today_logs": today_logs_qs[:50],  # cap for UI
-        "sessions_started": sessions_started,
-        "completed_sessions": completed_sessions,
-        "total_payout": total_payout,
+        "today_logs": today_logs_qs[:50],
+        "sessions_started": totals["sessions_started"] or 0,
+        "completed_sessions": totals["completed_sessions"] or 0,
+        "total_payout": totals["total_payout"] or 0,
         "today_start": today_start,
     }
     return render(request, "core/today.html", context)
