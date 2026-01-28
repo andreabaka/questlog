@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}Home · Quest Log{% endblock %}
+
+{% block content %}
+  <h1>Quest Log</h1>
+
+  <section>
+    <ul>
+      <li>
+        <strong>Active quests:</strong>
+        <a href="{% url 'quest_list' %}">{{ active_quests }}</a>
+      </li>
+      <li><strong>Total quests:</strong> {{ total_quests }}</li>
+      <li><strong>Logs today:</strong> {{ logs_today }}</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Quick links</h2>
+    <ul>
+      <li><a href="{% url 'quest_list' %}">View all quests</a></li>
+      <li><a href="{% url 'log_list' %}">View recent logs</a></li>
+      
+    </ul>
+  </section>
+{% endblock %}

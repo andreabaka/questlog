@@ -1,0 +1,59 @@
+<div id="logger-payout-block" style="margin-top:0.75rem;">
+  <label>
+    <strong>Payout</strong>
+    {{ form.payout }}
+    {% if form.payout.errors %}
+      <small style="color:#b91c1c;">{{ form.payout.errors|striptags }}</small>
+    {% endif %}
+  </label>
+
+  <div style="display:flex; gap:0.75rem; flex-wrap:wrap; align-items:center; margin-top:0.5rem;">
+    {% if needs_confirm %}
+      <small style="color:#b91c1c;"><strong>{{ confirm_message }}</strong></small>
+
+      <button
+        type="button"
+        hx-post="{% url 'logger_roll_payout' log.id %}"
+        hx-target="#logger-payout-block"
+        hx-swap="outerHTML"
+        hx-include="closest form"
+        hx-vals='{"confirm":"1"}'
+      >
+        Yes, replace
+      </button>
+
+      <a role="button" class="secondary" href="{% url 'logger_detail' log.id %}">Cancel</a>
+
+    {% else %}
+      <button
+        type="button"
+        class="secondary"
+        style="min-height:44px;"
+        hx-post="{% url 'logger_roll_payout' log.id %}"
+        hx-target="#logger-payout-block"
+        hx-swap="outerHTML"
+        hx-include="closest form"
+        onclick="
+          const payout = document.getElementById('id_payout') || document.querySelector('input[name=payout]');
+          if (payout && payout.value.trim() !== '') {
+            if (!confirm('Replace existing payout with a roll?')) return false;
+            this.setAttribute('hx-vals', '{&quot;confirm&quot;:&quot;1&quot;}');
+          } else {
+            this.removeAttribute('hx-vals');
+          }
+        "
+      >
+        🎲 Roll Payout
+      </button>
+
+
+      <small style="opacity:0.8;">Roll explodes on 10</small>
+    {% endif %}
+  </div>
+
+  {% if rolls %}
+    <div style="margin-top:0.5rem;">
+      <small><strong>Rolls:</strong> {{ rolls|join:" + " }} = {{ total }}</small>
+    </div>
+  {% endif %}
+</div>

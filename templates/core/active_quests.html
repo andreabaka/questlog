@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Active Quests · Quest Log{% endblock %}
+
+{% block content %}
+ <header style="display:flex; justify-content:space-between; align-items:baseline; gap:1rem; flex-wrap:wrap;">
+  <h1 style="margin:0;">Active Quests</h1>
+  <a role="button" class="secondary" href="{% url 'quest_create' %}">+ Add Quest</a>
+</header>
+
+  <section style="margin-top: 1rem;">
+    <p style="margin: 0 0 0.5rem;"><strong>Mobility mode:</strong></p>
+
+    <div style="display:flex; gap:0.75rem; flex-wrap:wrap;">
+      <a role="button"
+        class="{% if mode == 'normal' %}is-active{% endif %}"
+        href="{% url 'active_quests' %}?mode=normal"
+        hx-get="{% url 'active_quests_partial' %}?mode=normal"
+        hx-target="#quest-cards"
+        hx-swap="innerHTML">
+        Normal
+      </a>
+
+      <a role="button"
+        class="secondary {% if mode == 'limited' %}is-active{% endif %}"
+        href="{% url 'active_quests' %}?mode=limited"
+        hx-get="{% url 'active_quests_partial' %}?mode=limited"
+        hx-target="#quest-cards"
+        hx-swap="innerHTML">
+        Limited Mobility
+      </a>
+
+    </div>
+  </section>
+
+  <section style="margin-top: 1rem;">
+    <div id="quest-cards">
+      {% include "core/partials/_active_quest_cards.html" with quests=quests %}
+    </div>
+  </section>
+  
+{% endblock %}
+
+<p style="margin-top:0.75rem;">
+  <small>
+    Showing: <strong>{% if mode == "limited" %}Limited Mobility{% else %}Normal{% endif %}</strong>
+  </small>
+</p>

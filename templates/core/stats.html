@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+{% block title %}Stats · Quest Log{% endblock %}
+
+{% block content %}
+  <header style="display:flex; justify-content:space-between; gap:1rem; flex-wrap:wrap; align-items:baseline;">
+    <div>
+      <h1 style="margin:0;">Stats</h1>
+      <p style="margin:0.25rem 0 0; opacity:0.8;">
+        <small>Last 7 days ({{ start|date:"Y-m-d" }} → {{ end|date:"Y-m-d" }})</small>
+      </p>
+    </div>
+  </header>
+
+  <!-- Overall cards -->
+  <section style="margin-top:1rem;">
+    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:1rem;">
+      <article style="margin:0;">
+        <h3 style="margin:0 0 0.5rem;">Total sessions</h3>
+        <p style="font-size:1.5rem; margin:0;"><strong>{{ total_sessions }}</strong></p>
+      </article>
+
+      <article style="margin:0;">
+        <h3 style="margin:0 0 0.5rem;">Completed sessions</h3>
+        <p style="font-size:1.5rem; margin:0;"><strong>{{ completed_sessions }}</strong></p>
+        <p style="margin:0.25rem 0 0; opacity:0.8;">
+          <small>Completion rate: {{ completion_rate|floatformat:0 }}%</small>
+        </p>
+      </article>
+
+      <article style="margin:0;">
+        <h3 style="margin:0 0 0.5rem;">Total payout</h3>
+        <p style="font-size:1.5rem; margin:0;"><strong>{{ total_payout }}</strong></p>
+        <p style="margin:0.25rem 0 0; opacity:0.8;">
+          <small>Avg payout/session: {{ avg_payout|floatformat:1 }}</small>
+        </p>
+      </article>
+    </div>
+  </section>
+
+  <!-- Top quests by payout -->
+  <section style="margin-top:1.25rem;">
+    <h2 style="margin:0 0 0.5rem;">Top quests by payout (7 days)</h2>
+    <article style="margin:0;">
+      <table>
+        <thead>
+          <tr>
+            <th>Quest</th>
+            <th>Category</th>
+            <th>Sessions</th>
+            <th>Completed</th>
+            <th>Payout</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in top_quests_by_payout %}
+            <tr>
+              <td><a href="{% url 'quest_detail' row.quest__id %}">{{ row.quest__title }}</a></td>
+              <td>{{ row.quest__category__name|default:"—" }}</td>
+              <td>{{ row.sessions }}</td>
+              <td>{{ row.completed }}</td>
+              <td>{{ row.payout|default:"—" }}</td>
+            </tr>
+          {% empty %}
+            <tr><td colspan="5"><em>No logs in the last 7 days.</em></td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </article>
+  </section>
+
+  <!-- Top quests by sessions -->
+  <section style="margin-top:1.25rem;">
+    <h2 style="margin:0 0 0.5rem;">Top quests by sessions (7 days)</h2>
+    <article style="margin:0;">
+      <table>
+        <thead>
+          <tr>
+            <th>Quest</th>
+            <th>Category</th>
+            <th>Sessions</th>
+            <th>Completed</th>
+            <th>Payout</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in top_quests_by_sessions %}
+            <tr>
+              <td><a href="{% url 'quest_detail' row.quest__id %}">{{ row.quest__title }}</a></td>
+              <td>{{ row.quest__category__name|default:"—" }}</td>
+              <td>{{ row.sessions }}</td>
+              <td>{{ row.completed }}</td>
+              <td>{{ row.payout|default:"—" }}</td>
+            </tr>
+          {% empty %}
+            <tr><td colspan="5"><em>No logs in the last 7 days.</em></td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </article>
+  </section>
+
+  <!-- Optional: By category -->
+  <section style="margin-top:1.25rem;">
+    <h2 style="margin:0 0 0.5rem;">By category (7 days)</h2>
+    <article style="margin:0;">
+      <table>
+        <thead>
+          <tr>
+            <th>Category</th>
+            <th>Sessions</th>
+            <th>Completed</th>
+            <th>Payout</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in by_category %}
+            <tr>
+              <td>
+                {% if row.quest__category__name %}
+                  {{ row.quest__category__name }}
+                {% else %}
+                  — (Uncategorized)
+                {% endif %}
+              </td>
+              <td>{{ row.sessions }}</td>
+              <td>{{ row.completed }}</td>
+              <td>{{ row.payout|default:"—" }}</td>
+            </tr>
+          {% empty %}
+            <tr><td colspan="4"><em>No category data yet.</em></td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </article>
+  </section>
+{% endblock %}

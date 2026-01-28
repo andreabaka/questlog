@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+{% block title %}Logs · Quest Log{% endblock %}
+
+{% block content %}
+  <header style="display:flex; justify-content:space-between; align-items:baseline; gap:1rem; flex-wrap:wrap;">
+    <h1 style="margin:0;">Logs</h1>
+  </header>
+
+  <!-- Filters -->
+  <article style="margin-top:1rem;">
+    <form method="get" style="display:grid; gap:0.75rem; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); align-items:end;">
+      <label>
+        Completed
+        <select name="completed">
+          <option value="all" {% if completed == "all" %}selected{% endif %}>All</option>
+          <option value="yes" {% if completed == "yes" %}selected{% endif %}>Completed</option>
+          <option value="no" {% if completed == "no" %}selected{% endif %}>Not completed</option>
+        </select>
+      </label>
+
+      <label>
+        Category (optional)
+        <select name="category">
+          <option value="">All categories</option>
+          {% for c in categories %}
+            <option value="{{ c.id }}" {% if category_id == c.id|stringformat:"s" %}selected{% endif %}>
+              {{ c.name }}
+            </option>
+          {% endfor %}
+        </select>
+      </label>
+
+      <label>
+        Date range (optional)
+        <select name="range">
+          <option value="" {% if not date_range %}selected{% endif %}>Any time</option>
+          <option value="today" {% if date_range == "today" %}selected{% endif %}>Today</option>
+          <option value="7d" {% if date_range == "7d" %}selected{% endif %}>Last 7 days</option>
+        </select>
+      </label>
+
+      <div style="display:flex; gap:0.75rem; flex-wrap:wrap;">
+        <button type="submit">Apply</button>
+        <a role="button" class="secondary" href="{% url 'log_list' %}">Reset</a>
+      </div>
+    </form>
+  </article>
+
+  <!-- Results -->
+  <section style="margin-top:1rem;">
+    {% if page_obj.object_list %}
+      <div style="display:grid; gap:0.75rem;">
+        {% for log in page_obj.object_list %}
+          <a href="{% url 'logger_detail' log.id %}" style="text-decoration:none;">
+            <article style="margin:0;">
+              <header style="display:flex; justify-content:space-between; gap:1rem; flex-wrap:wrap; align-items:baseline;">
+                <h2 style="margin:0; font-size:1.05rem;">
+                  {{ log.quest.title }}
+                </h2>
+                <small>{{ log.timestamp|date:"Y-m-d H:i" }}</small>
+              </header>
+
+              <p style="margin:0.35rem 0 0.25rem;">
+                <strong>Category:</strong>
+                {% if log.quest.category %}{{ log.quest.category.name }}{% else %}—{% endif %}
+              </p>
+
+              <p style="margin:0.25rem 0 0;">
+                <strong>Completed:</strong> {% if log.completed %}Yes{% else %}No{% endif %}
+                &nbsp; · &nbsp;
+                <strong>Payout:</strong> {% if log.payout is not None %}{{ log.payout }}{% else %}—{% endif %}
+              </p>
+
+              {% if log.notes %}
+                <p style="margin:0.35rem 0 0;">
+                  <strong>Notes:</strong> {{ log.notes|truncatechars:140 }}
+                </p>
+              {% endif %}
+            </article>
+          </a>
+        {% endfor %}
+      </div>
+    {% else %}
+      <article style="margin:0;">
+        <p style="margin:0;"><em>No logs match these filters.</em></p>
+      </article>
+    {% endif %}
+  </section>
+
+  <!-- Pagination -->
+  {% if page_obj.paginator.num_pages > 1 %}
+    <nav style="margin-top:1rem;">
+      <ul style="display:flex; gap:0.5rem; flex-wrap:wrap; align-items:center;">
+        {% if page_obj.has_previous %}
+          <li>
+            <a href="?page={{ page_obj.previous_page_number }}&completed={{ completed }}&range={{ date_range }}&category={{ category_id }}">← Prev</a>
+          </li>
+        {% endif %}
+
+        <li>
+          <small>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</small>
+        </li>
+
+        {% if page_obj.has_next %}
+          <li>
+            <a href="?page={{ page_obj.next_page_number }}&completed={{ completed }}&range={{ date_range }}&category={{ category_id }}">Next →</a>
+          </li>
+        {% endif %}
+      </ul>
+    </nav>
+  {% endif %}
+{% endblock %}

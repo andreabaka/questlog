@@ -1,0 +1,19 @@
+<div id="logger-payout">
+  <form
+    method="post"
+    action="{% url 'logger_update_payout' log.id %}"
+    hx-post="{% url 'logger_update_payout' log.id %}"
+    hx-target="#logger-payout"
+    hx-swap="outerHTML"
+    style="margin:0;"
+  >
+    {% csrf_token %}
+    <label style="margin:0;">
+      <strong>Payout</strong>
+      <input name="payout" type="number" inputmode="numeric" step="1"
+             value="{% if log.payout is not None %}{{ log.payout }}{% endif %}"
+             placeholder="e.g., 7">
+    </label>
+    <button type="submit" class="secondary">Update payout</button>
+  </form>
+</div>

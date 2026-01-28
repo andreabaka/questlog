@@ -1,0 +1,17 @@
+<article style="margin:0;">
+  <header style="display:flex; justify-content:space-between; gap:1rem; flex-wrap:wrap; align-items:baseline;">
+    <h2 style="margin:0; font-size:1.1rem;">{{ quest.title }}</h2>
+    <span class="badge">Started ✅</span>
+  </header>
+
+  <p style="margin:0.5rem 0 0.25rem;">
+    <strong>Category:</strong>
+    {% if quest.category %}{{ quest.category.name }}{% else %}—{% endif %}
+  </p>
+
+  <footer style="display:flex; gap:0.75rem; flex-wrap:wrap; margin-top:0.75rem;">
+    <a role="button" href="{% url 'logger_detail' log.id %}">Open log</a>
+    <a role="button" class="secondary" href="{% url 'quest_detail' quest.id %}">Quest</a>
+  </footer>
+</article>
+

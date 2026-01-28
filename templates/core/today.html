@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+{% block title %}Today · Quest Log{% endblock %}
+
+{% block content %}
+  <header style="display:flex; justify-content:space-between; align-items:baseline; gap:1rem; flex-wrap:wrap;">
+    <div>
+      <h1 style="margin:0;">Today</h1>
+      <p style="margin:0.25rem 0 0; opacity:0.8;">
+        <small>{{ today_start|date:"Y-m-d" }}</small>
+      </p>
+    </div>
+  </header>
+
+  <!-- Mode selector -->
+  <section style="margin-top:1rem;">
+    <p style="margin:0 0 0.5rem;"><strong>Mobility mode:</strong></p>
+
+    <div style="display:flex; gap:0.75rem; flex-wrap:wrap;">
+      <a role="button"
+         class="{% if mode != 'limited' %}primary{% else %}secondary{% endif %}"
+         href="{% url 'today' %}?mode=normal">
+        Normal
+      </a>
+
+      <a role="button"
+         class="{% if mode == 'limited' %}primary{% else %}secondary{% endif %}"
+         href="{% url 'today' %}?mode=limited">
+        Limited Mobility
+      </a>
+    </div>
+  </section>
+
+  <!-- 3 active quests -->
+  <section style="margin-top:1rem;">
+    <header style="display:flex; justify-content:space-between; align-items:baseline; gap:1rem; flex-wrap:wrap;">
+      <h2 style="margin:0;">3 Active Quests</h2>
+
+      {# Optional reroll later: could be a link that adds &shuffle=1 #}
+      {# <a role="button" class="secondary" href="{% url 'today' %}?mode={{ mode }}&shuffle=1">↻ Reroll selection</a> #}
+    </header>
+
+    <div style="display:grid; gap:1rem; margin-top:0.75rem;">
+      {% if quests %}
+        {% for quest in quests %}
+          <article style="margin:0;">
+            <header style="display:flex; justify-content:space-between; gap:1rem; flex-wrap:wrap; align-items:baseline;">
+              <h3 style="margin:0; font-size:1.1rem;">{{ quest.title }}</h3>
+              <span class="badge active">Active</span>
+            </header>
+
+            <p style="margin:0.5rem 0 0.25rem;">
+              <strong>Category:</strong>
+              {% if quest.category %}{{ quest.category.name }}{% else %}—{% endif %}
+            </p>
+
+            {% if quest.notes %}
+              <p style="margin:0.25rem 0 0.75rem;">
+                <strong>Notes:</strong> {{ quest.notes|truncatechars:120 }}
+              </p>
+            {% endif %}
+
+            <footer style="display:flex; gap:0.75rem; flex-wrap:wrap;">
+              <a role="button" href="{% url 'logger_start' quest.id %}">Start</a>
+              <a role="button" class="secondary" href="{% url 'quest_detail' quest.id %}">Details</a>
+            </footer>
+          </article>
+        {% endfor %}
+      {% else %}
+        <article style="margin:0;">
+          <p style="margin:0;">
+            <em>No active quests found for this mode.</em>
+            <a href="{% url 'quest_create' %}">Add one?</a>
+          </p>
+        </article>
+      {% endif %}
+    </div>
+  </section>
+
+  <!-- Today's totals -->
+  <section style="margin-top:1.25rem;">
+    <h2 style="margin:0 0 0.5rem;">Today’s totals</h2>
+    <article style="margin:0;">
+      <ul style="margin:0;">
+        <li><strong>Sessions started:</strong> {{ sessions_started }}</li>
+        <li><strong>Completed sessions:</strong> {{ completed_sessions }}</li>
+        <li><strong>Total payout:</strong> {{ total_payout }}</li>
+      </ul>
+    </article>
+  </section>
+
+  <!-- Today's activity -->
+  <section style="margin-top:1.25rem;">
+    <h2 style="margin:0 0 0.5rem;">Today’s activity</h2>
+
+    <div style="display:grid; gap:0.75rem;">
+      {% if today_logs %}
+        {% for log in today_logs %}
+          <article style="margin:0; padding:0.75rem;">
+            <header style="display:flex; justify-content:space-between; gap:1rem; flex-wrap:wrap;">
+              <div>
+                <strong>
+                  <a href="{% url 'logger_detail' log.id %}">{{ log.quest.title }}</a>
+                </strong>
+                <div style="opacity:0.8;">
+                  <small>
+                    {{ log.timestamp|date:"H:i" }}
+                    · {% if log.quest.category %}{{ log.quest.category.name }}{% else %}—{% endif %}
+                    · {% if log.completed %}Completed ✅{% else %}In progress{% endif %}
+                  </small>
+                </div>
+              </div>
+
+              <div style="text-align:right;">
+                <div><strong>{{ log.payout|default:"—" }}</strong></div>
+                <small style="opacity:0.8;">payout</small>
+              </div>
+            </header>
+
+            {% if log.notes %}
+              <p style="margin:0.5rem 0 0; opacity:0.9;">
+                <small>{{ log.notes|truncatechars:140 }}</small>
+              </p>
+            {% endif %}
+          </article>
+        {% endfor %}
+      {% else %}
+        <article style="margin:0;">
+          <p style="margin:0;"><em>No logs yet today.</em></p>
+        </article>
+      {% endif %}
+    </div>
+  </section>
+{% endblock %}

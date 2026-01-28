@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Category · Quest Log{% endblock %}
+
+{% block content %}
+  <header style="display:flex; justify-content:space-between; align-items:baseline; gap:1rem; flex-wrap:wrap;">
+    <h1 style="margin:0;">
+      {% if mode == "edit" %}Edit quest{% else %}Add quest{% endif %}
+    </h1>
+    <a href="{% url 'quest_list' %}">← Cancel</a>
+  </header>
+
+  {% if lock_reason %}
+    <article style="margin-top:1rem; padding:0.75rem;">
+      <strong>Locked:</strong> {{ lock_reason }}
+    </article>
+  {% endif %}
+
+  <article style="margin-top:1rem;">
+    <form method="post">
+      {% csrf_token %}
+
+      {% if form.non_field_errors %}
+        <p><strong>{{ form.non_field_errors }}</strong></p>
+      {% endif %}
+
+      <label>
+        Name
+        {{ form.name }}
+        {% if form.name.errors %}
+          <small style="color: #b91c1c;">{{ form.name.errors|striptags }}</small>
+        {% endif %}
+      </label>
+
+      <label>
+        Notes
+        {{ form.notes }}
+        {% if form.notes.errors %}
+          <small style="color: #b91c1c;">{{ form.notes.errors|striptags }}</small>
+        {% endif %}
+      </label>
+
+      <button type="submit">
+        {% if mode == "edit" %}Save changes{% else %}Create quest{% endif %}
+      </button>
+
+    </form>
+  </article>
+{% endblock %}
+

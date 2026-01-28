@@ -1,0 +1,22 @@
+<div id="logger-status">
+  {% if log.completed %}
+    <span class="badge active">Completed ✅</span>
+  {% else %}
+    <span class="badge ended">In progress</span>
+  {% endif %}
+
+  <form
+    method="post"
+    action="{% url 'logger_toggle_completed' log.id %}"
+    style="display:inline-block; margin-left:0.75rem;"
+    hx-post="{% url 'logger_toggle_completed' log.id %}"
+    hx-target="#logger-status"
+    hx-swap="outerHTML"
+  >
+    {% csrf_token %}
+    <button type="submit" class="secondary">
+      {% if log.completed %}Mark Incomplete{% else %}Mark Completed{% endif %}
+    </button>
+  </form>
+</div>
+

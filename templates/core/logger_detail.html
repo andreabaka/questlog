@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+{% block title %}Log · Quest Log{% endblock %}
+
+{% block content %}
+  <header style="display:flex; justify-content:space-between; gap:1rem; flex-wrap:wrap; align-items:baseline;">
+    <div>
+      <h1 style="margin:0; display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;">
+        {{ log.quest.title }}
+        {% if log.completed %}
+          <span class="badge active">Completed ✅</span>
+        {% endif %}
+      </h1>
+      <p style="margin:0.25rem 0 0;">
+        <small>
+          Category:
+          {% if log.quest.category %}<strong>{{ log.quest.category.name }}</strong>{% else %}—{% endif %}
+        </small>
+      </p>
+    </div>
+
+    <a href="{% url 'active_quests' %}" class="secondary">← Back</a>
+  </header>
+
+  <article style="margin-top:1rem;">
+    <p style="margin:0;">
+      <strong>Started:</strong> {{ log.timestamp|date:"Y-m-d H:i" }}
+    </p>
+
+    {% if not log.completed %}
+      <form method="post" action="{% url 'logger_finish' log.id %}" style="margin-top:0.75rem;">
+        {% csrf_token %}
+        <button type="submit">Finish</button>
+      </form>
+    {% endif %}
+  </article>
+
+  <article style="margin-top:1rem;">
+    <form method="post">
+      {% csrf_token %}
+
+      {% if form.non_field_errors %}
+        <p><strong>{{ form.non_field_errors }}</strong></p>
+      {% endif %}
+
+      <label style="display:flex; align-items:center; gap:0.5rem;">
+        {{ form.completed }}
+        <strong>Completed</strong>
+      </label>
+      {% if form.completed.errors %}
+        <small style="color:#b91c1c;">{{ form.completed.errors|striptags }}</small>
+      {% endif %}
+
+      {% include "core/partials/_logger_payout_block.html" with log=log form=form %}
+
+
+      <label style="margin-top:0.75rem;">
+        <strong>Notes</strong>
+        {{ form.notes }}
+        {% if form.notes.errors %}
+          <small style="color:#b91c1c;">{{ form.notes.errors|striptags }}</small>
+        {% endif %}
+      </label>
+
+      <div style="position: sticky; bottom: 0; padding: 0.75rem 0; background: var(--pico-background-color);">
+        <div style="display:flex; gap:0.75rem; flex-wrap:wrap;">
+          <button type="submit" name="save_stay" value="1">Save</button>
+
+          <button type="submit" class="secondary" name="save_back_today" value="1">
+            Save + Back to Today
+          </button>
+
+          <button type="submit" class="secondary" name="start_another" value="1">
+            Save + Start another
+          </button>
+        </div>
+      </div>
+    </form>
+  </article>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+  function rollExplodingD10() {
+    const rolls = [];
+    while (true) {
+      const r = Math.floor(Math.random() * 10) + 1; // 1..10
+      rolls.push(r);
+      if (r !== 10) break;
+    }
+    const total = rolls.reduce((a, b) => a + b, 0);
+    return { total, rolls };
+  }
+
+  function formatRollLine(rolls, total) {
+    return `Roll: ${rolls.join("+")} = ${total}`;
+  }
+
+  function getNotesEl() {
+    // Prefer Django's default id, but fall back safely.
+    return document.getElementById("id_notes") || document.querySelector('textarea[name="notes"]');
+  }
+
+  const btn = document.getElementById("roll-payout-btn");
+  const payoutEl = document.getElementById("id_payout");
+  const breakdownBox = document.getElementById("roll-breakdown");
+  const breakdownText = document.getElementById("roll-breakdown-text");
+
+  if (!btn || !payoutEl) return;
+
+  btn.addEventListener("click", function () {
+  // If payout already has something, confirm before overwriting
+  const existing = (payoutEl.value || "").trim();
+  if (existing !== "") {
+    const ok = window.confirm("Replace existing payout with a roll?");
+    if (!ok) return;
+  }
+
+  const { total, rolls } = rollExplodingD10();
+
+  // Fill payout (user can still overwrite manually)
+  payoutEl.value = total;
+
+  // Show breakdown preview
+  if (breakdownBox && breakdownText) {
+    breakdownText.textContent = rolls.join(" + ") + " = " + total;
+    breakdownBox.style.display = "block";
+  }
+
+  // Optional: append roll line into notes (safe, non-destructive)
+  const notesEl = getNotesEl();
+  if (notesEl) {
+    const line = formatRollLine(rolls, total);
+
+    const current = notesEl.value || "";
+    notesEl.value = current
+      ? (current.endsWith("\n") ? current + line : current + "\n" + line)
+      : line;
+  }
+});
+
+})();
+</script>
+{% endblock %}

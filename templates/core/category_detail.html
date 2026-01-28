@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}{{ category.name }} · Categories · Quest Log{% endblock %}
+
+{% block content %}
+  <header style="display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; align-items: baseline;">
+    <h1 style="margin: 0;">{{ category.name }}</h1>
+    <a href="{% url 'category_list' %}">← All categories</a>
+  </header>
+
+  {% if category.notes %}
+    <article style="margin-top: 1rem;">
+      {{ category.notes|linebreaks }}
+    </article>
+  {% endif %}
+
+  <h2 style="margin-top: 1rem;">Quests in this category</h2>
+
+  {% if quests %}
+    <div style="display: grid; gap: 1rem;">
+      {% for quest in quests %}
+        <article style="margin: 0;">
+          <header style="display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; align-items: baseline;">
+            <h3 style="margin: 0; font-size: 1.05rem;">
+              <a href="{% url 'quest_detail' quest.id %}">{{ quest.title }}</a>
+            </h3>
+
+            {% if quest.end_date %}
+              <span class="badge ended">Ended</span>
+            {% else %}
+              <span class="badge active">Active</span>
+            {% endif %}
+          </header>
+
+          <p style="margin: 0.5rem 0 0.25rem;">
+            <strong>Limited mobility:</strong>
+            {% if quest.limited_mobility %}<span class="badge">Yes</span>{% else %}<span class="badge">No</span>{% endif %}
+          </p>
+
+          <footer style="display: flex; gap: 1rem; flex-wrap: wrap; font-size: 0.9rem;">
+            {% if quest.start_date %}
+              <span><strong>Start:</strong> {{ quest.start_date|date:"Y-m-d" }}</span>
+            {% endif %}
+            <span><strong>Updated:</strong> {{ quest.updated_at|date:"Y-m-d H:i" }}</span>
+          </footer>
+        </article>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p>No quests in this category yet.</p>
+  {% endif %}
+{% endblock %}

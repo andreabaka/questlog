@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Delete Category · Quest Log{% endblock %}
+
+{% block content %}
+  <h1>Delete category</h1>
+
+  <article>
+    <p>Are you sure you want to delete <strong>{{ category.name }}</strong>?</p>
+    <form method="post">
+      {% csrf_token %}
+      <button type="submit" class="contrast">Yes, delete</button>
+      <a role="button" class="secondary" href="{% url 'category_list' %}">Cancel</a>
+    </form>
+  </article>
+{% endblock %}
+

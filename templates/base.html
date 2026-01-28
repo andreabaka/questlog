@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+
+  <meta charset="utf-8">
+  <title>{% block title %}Quest Log{% endblock %}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- CSRF token for HTMX POST requests -->
+  <meta name="csrf-token" content="{{ csrf_token }}">
+
+  <script>
+    // Send Django CSRF token with all HTMX requests (needed for hx-post)
+    document.addEventListener('htmx:configRequest', (event) => {
+      const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+      if (token) event.detail.headers['X-CSRFToken'] = token;
+    });
+  </script>
+
+  <!-- Pico.css (CDN) -->
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css"
+  >
+
+  <style>
+    /* Optional tiny tweaks */
+    main.container {
+      max-width: 960px;
+    }
+
+    a[role="button"].is-active {
+        box-shadow: inset 0 0 0 2px var(--pico-primary);
+        font-weight: 700;
+      }
+
+
+    nav a {
+      text-decoration: none;
+    }
+
+    .badge {
+      font-size: 0.75rem;
+      padding: 0.25rem 0.5rem;
+      border-radius: 0.5rem;
+      background: var(--pico-muted-border-color);
+    }
+
+    .badge.active {
+      background: #d1fae5;
+      color: #065f46;
+    }
+
+    .badge.ended {
+      background: #fee2e2;
+      color: #7f1d1d;
+    }
+
+    .htmx-indicator {
+      display: none;
+    }
+    .htmx-request .htmx-indicator {
+      display: inline-block;
+    }
+    .htmx-request a[role="button"] {
+      pointer-events: none;
+      opacity: 0.6;
+    }
+
+  </style>
+
+  {% block extra_head %}{% endblock %}
+</head>
+
+<body>
+  <nav class="container">
+    <ul>
+      <li><strong>Quest Log</strong></li>
+    </ul>
+    <ul>
+      <li><a href="{% url 'home' %}">Home</a></li>
+      <li><a href="{% url 'quest_list' %}">Quests</a></li>
+      <li><a href="{% url 'active_quests' %}">Active</a></li>
+      <li><a href="{% url 'log_list' %}">Logs</a></li>
+      <li><a href="{% url 'category_list' %}">Categories</a></li>
+      <li><a href="{% url 'quest_create' %}">+ Add Quest</a></li>
+      <li><a href="{% url 'today' %}">Today</a></li>
+      <li><a href="{% url 'stats' %}">Stats</a></li>
+
+    </ul>
+  </nav>
+
+  <main class="container">
+    {% if messages %}
+      <div style="margin-top: 1rem;">
+        {% for message in messages %}
+          <article style="margin: 0 0 0.75rem; padding: 0.75rem;">
+            {{ message }}
+          </article>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    {% block content %}{% endblock %}
+  </main>
+
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

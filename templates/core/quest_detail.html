@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+{% block title %}{{ quest.title }} · Quest Log{% endblock %}
+
+{% block content %}
+  <header style="display:flex; justify-content:space-between; gap:1rem; flex-wrap:wrap; align-items:baseline;">
+    <div>
+      <h1 style="margin:0; display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;">
+        {{ quest.title }}
+        {% if quest.is_active %}
+          <span class="badge active">Active</span>
+        {% else %}
+          <span class="badge ended">Ended</span>
+        {% endif %}
+      </h1>
+      <p style="margin:0.25rem 0 0; opacity:0.85;">
+        <small>
+          Category: {% if quest.category %}<strong>{{ quest.category.name }}</strong>{% else %}—{% endif %}
+          · Limited mobility: {% if quest.limited_mobility %}Yes{% else %}No{% endif %}
+        </small>
+      </p>
+    </div>
+
+    <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+      {% if quest.is_active %}
+        <a role="button" href="{% url 'logger_start' quest.id %}">Start</a>
+      {% endif %}
+      <a role="button" class="secondary" href="{% url 'quest_list' %}">← Back</a>
+    </div>
+  </header>
+
+  {% if quest.notes %}
+    <article style="margin-top:1rem;">
+      <h3 style="margin:0 0 0.5rem;">Notes</h3>
+      <div style="white-space:pre-wrap;">{{ quest.notes }}</div>
+    </article>
+  {% endif %}
+
+  <!-- Rollups -->
+  <section style="margin-top:1rem;">
+    <h2 style="margin:0 0 0.5rem;">Rollups</h2>
+    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:1rem;">
+      <article style="margin:0;">
+        <small style="opacity:0.8;">Total sessions</small>
+        <div style="font-size:1.5rem;"><strong>{{ total_sessions }}</strong></div>
+      </article>
+
+      <article style="margin:0;">
+        <small style="opacity:0.8;">Completed sessions</small>
+        <div style="font-size:1.5rem;"><strong>{{ total_completed }}</strong></div>
+      </article>
+
+      <article style="margin:0;">
+        <small style="opacity:0.8;">Total payout</small>
+        <div style="font-size:1.5rem;"><strong>{{ total_payout }}</strong></div>
+      </article>
+
+      <article style="margin:0;">
+        <small style="opacity:0.8;">Last activity</small>
+        <div style="font-size:1.1rem;">
+          <strong>
+            {% if last_activity %}
+              {{ last_activity|date:"Y-m-d H:i" }}
+            {% else %}
+              —
+            {% endif %}
+          </strong>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- History tabs (querystring filters) -->
+  <section style="margin-top:1.25rem;">
+    <header style="display:flex; justify-content:space-between; align-items:baseline; gap:1rem; flex-wrap:wrap;">
+      <h2 style="margin:0;">History</h2>
+
+      <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+        <a role="button"
+           class="{% if range == 'recent' %}primary{% else %}secondary{% endif %}"
+           href="{% url 'quest_detail' quest.id %}?range=recent">
+          Recent
+        </a>
+
+        <a role="button"
+           class="{% if range == 'week' %}primary{% else %}secondary{% endif %}"
+           href="{% url 'quest_detail' quest.id %}?range=week">
+          This week
+        </a>
+
+        <a role="button"
+           class="{% if range == 'all' %}primary{% else %}secondary{% endif %}"
+           href="{% url 'quest_detail' quest.id %}?range=all">
+          All time
+        </a>
+      </div>
+    </header>
+
+    <div style="display:grid; gap:0.75rem; margin-top:0.75rem;">
+      {% if logs %}
+        {% for log in logs %}
+          <article style="margin:0; padding:0.75rem;">
+            <header style="display:flex; justify-content:space-between; gap:1rem; flex-wrap:wrap; align-items:baseline;">
+              <div>
+                <strong>
+                  <a href="{% url 'logger_detail' log.id %}">
+                    {{ log.timestamp|date:"Y-m-d H:i" }}
+                  </a>
+                </strong>
+                <div style="opacity:0.8;">
+                  <small>
+                    {% if log.completed %}Completed ✅{% else %}In progress{% endif %}
+                    · Payout: {{ log.payout|default:"—" }}
+                  </small>
+                </div>
+              </div>
+            </header>
+
+            {% if log.notes %}
+              <p style="margin:0.5rem 0 0; opacity:0.9;">
+                <small>{{ log.notes|truncatechars:180 }}</small>
+              </p>
+            {% endif %}
+          </article>
+        {% endfor %}
+      {% else %}
+        <article style="margin:0;">
+          <p style="margin:0;"><em>No logs yet.</em></p>
+        </article>
+      {% endif %}
+    </div>
+  </section>
+{% endblock %}

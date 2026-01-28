@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}Add Quest · Quest Log{% endblock %}
+
+{% block content %}
+  <header style="display:flex; justify-content:space-between; align-items:baseline; gap:1rem; flex-wrap:wrap;">
+    <h1 style="margin:0;">Add quest</h1>
+    <a href="{% url 'quest_list' %}">← Cancel</a>
+  </header>
+
+  <article style="margin-top:1rem;">
+    <form method="post">
+      {% csrf_token %}
+
+      {% if form.non_field_errors %}
+        <p><strong>{{ form.non_field_errors }}</strong></p>
+      {% endif %}
+
+      <label>
+        Title *
+        {{ form.title }}
+        {% if form.title.errors %}
+          <small style="color:#b91c1c;">{{ form.title.errors|striptags }}</small>
+        {% endif %}
+      </label>
+
+      <label>
+        Category
+        {{ form.category }}
+        {% if form.category.errors %}
+          <small style="color:#b91c1c;">{{ form.category.errors|striptags }}</small>
+        {% endif %}
+      </label>
+
+      <div style="display:grid; gap:1rem; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));">
+        <label>
+          Start date
+          {{ form.start_date }}
+          {% if form.start_date.errors %}
+            <small style="color:#b91c1c;">{{ form.start_date.errors|striptags }}</small>
+          {% endif %}
+        </label>
+
+        <label>
+          End date
+          {{ form.end_date }}
+          {% if form.end_date.errors %}
+            <small style="color:#b91c1c;">{{ form.end_date.errors|striptags }}</small>
+          {% endif %}
+        </label>
+      </div>
+
+      <label>
+        {{ form.limited_mobility }}
+        Limited mobility
+        {% if form.limited_mobility.errors %}
+          <small style="color:#b91c1c;">{{ form.limited_mobility.errors|striptags }}</small>
+        {% endif %}
+      </label>
+
+      <label>
+        Notes
+        {{ form.notes }}
+        {% if form.notes.errors %}
+          <small style="color:#b91c1c;">{{ form.notes.errors|striptags }}</small>
+        {% endif %}
+      </label>
+
+      <button type="submit">Create quest</button>
+    </form>
+  </article>
+{% endblock %}

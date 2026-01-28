@@ -1,0 +1,80 @@
+{% if total_count < 3 %}
+  <article style="margin:0;">
+    {% if total_count == 0 %}
+      <p style="margin:0;">
+        You don’t have any active quests in this mode — add one?
+      </p>
+    {% else %}
+      <p style="margin:0;">
+        You only have {{ total_count }} active quest{{ total_count|pluralize }} in this mode — add more?
+      </p>
+    {% endif %}
+    <footer style="margin-top:0.75rem;">
+      <a role="button" class="secondary" href="{% url 'quest_create' %}">+ Add Quest</a>
+    </footer>
+  </article>
+{% endif %}
+
+
+
+{% if quests %}
+  <div style="display:grid; gap:1rem;">
+    {% for quest in quests %}
+      <div id="quest-card-{{ quest.id }}">
+      <article style="margin:0;">
+        <header style="display:flex; justify-content:space-between; gap:1rem; flex-wrap:wrap; align-items:baseline;">
+          <h2 style="margin:0; font-size:1.1rem;">{{ quest.title }}</h2>
+          <span class="badge active">Active</span>
+        </header>
+
+        <p style="margin:0.5rem 0 0.25rem;">
+          <strong>Category:</strong>
+          {% if quest.category %}{{ quest.category.name }}{% else %}—{% endif %}
+        </p>
+
+        {% if quest.notes %}
+          <p style="margin:0.25rem 0 0.75rem;">
+            <strong>Notes:</strong> {{ quest.notes|truncatechars:120 }}
+          </p>
+        {% endif %}
+
+        {% if quest.last_logged %}
+  <p style="margin:0.25rem 0;">
+    <small><strong>Last logged:</strong> {{ quest.last_logged|date:"Y-m-d H:i" }}</small>
+  </p>
+{% else %}
+  <p style="margin:0.25rem 0;">
+    <small><strong>Last logged:</strong> —</small>
+  </p>
+{% endif %}
+
+{% if quest.last_payout is not None %}
+  <p style="margin:0.25rem 0;">
+    <small><strong>Last payout:</strong> {{ quest.last_payout }}</small>
+  </p>
+{% endif %}
+
+
+        <footer style="display:flex; gap:0.75rem; flex-wrap:wrap;">
+          <!-- Start button placeholder for now -->
+          <a role="button"
+            href="{% url 'logger_start' quest.id %}"
+            hx-post="{% url 'logger_start_htmx' quest.id %}"
+            hx-target="#quest-card-{{ quest.id }}"
+            hx-swap="outerHTML"
+            hx-indicator="#spin-{{ quest.id }}"
+            onclick="this.setAttribute('aria-disabled','true'); this.classList.add('secondary');">
+            Start <span id="spin-{{ quest.id }}" class="htmx-indicator">⏳</span>
+          </a>
+
+          <a role="button" class="secondary" href="{% url 'quest_detail' quest.id %}">Details</a>
+        </footer>
+      </article>
+      </div>
+    {% endfor %}
+  </div>
+{% else %}
+  <article style="margin:0;">
+    <p style="margin:0;"><em>No active quests found for this mode.</em></p>
+  </article>
+{% endif %}

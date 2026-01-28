@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+
+{% block title %}Quests · Quest Log{% endblock %}
+
+{% block content %}
+<header style="display:flex; justify-content:space-between; align-items:baseline; gap:1rem; flex-wrap:wrap;">
+  <h1 style="margin:0;">Quests</h1>
+  <a role="button" href="{% url 'quest_create' %}">+ Add quest</a>
+</header>
+
+  {% if quests %}
+    <div style="display: grid; gap: 1rem;">
+      {% for quest in quests %}
+        <article style="margin: 0;">
+          <header style="display: flex; justify-content: space-between; gap: 1rem; align-items: baseline; flex-wrap: wrap;">
+            <h2 style="margin: 0; font-size: 1.1rem;">
+              <a href="{% url 'quest_detail' quest.id %}">{{ quest.title }}</a>
+            </h2>
+
+            {% if quest.end_date %}
+              <span class="badge ended">Ended</span>
+            {% else %}
+              <span class="badge active">Active</span>
+            {% endif %}
+          </header>
+
+          <p style="margin: 0.25rem 0 0.5rem;">
+            <strong>Category:</strong>
+            {% if quest.category %}{{ quest.category.name }}{% else %}—{% endif %}
+          </p>
+
+          <p style="margin: 0.25rem 0 0.5rem;">
+            <strong>Limited mobility:</strong>
+            {% if quest.limited_mobility %}
+              <span class="badge">Yes</span>
+            {% else %}
+              <span class="badge">No</span>
+            {% endif %}
+          </p>
+
+          <footer style="display: flex; gap: 1rem; flex-wrap: wrap; font-size: 0.9rem;">
+            {% if quest.start_date %}
+              <span><strong>Start:</strong> {{ quest.start_date|date:"Y-m-d" }}</span>
+            {% endif %}
+
+            {% if quest.updated_at %}
+              <span><strong>Updated:</strong> {{ quest.updated_at|date:"Y-m-d H:i" }}</span>
+            {% endif %}
+          </footer>
+        </article>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p>No quests yet.</p>
+  {% endif %}
+{% endblock %}

@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Categories · Quest Log{% endblock %}
+
+{% block content %}
+  <header style="display:flex; justify-content:space-between; align-items:baseline; gap:1rem; flex-wrap:wrap;">
+    <h1 style="margin:0;">Categories</h1>
+    <a role="button" href="{% url 'category_create' %}">+ New category</a>
+  </header>
+
+  {% if messages %}
+    {% for message in messages %}
+      <article style="margin:1rem 0 0; padding:0.75rem;">
+        {{ message }}
+      </article>
+    {% endfor %}
+  {% endif %}
+
+  {% if categories %}
+    <div style="display:grid; gap:1rem; margin-top:1rem;">
+      {% for c in categories %}
+        <article style="margin:0;">
+          <header style="display:flex; justify-content:space-between; gap:1rem; flex-wrap:wrap; align-items:baseline;">
+            <h2 style="margin:0; font-size:1.1rem;">
+              {{ c.name }}
+            </h2>
+            <span class="badge">{{ c.quest_count }} quest{{ c.quest_count|pluralize }}</span>
+          </header>
+
+          {% if c.notes %}
+            <p style="margin:0.5rem 0 0;">{{ c.notes|truncatechars:160 }}</p>
+          {% endif %}
+
+          <footer style="display:flex; gap:0.75rem; flex-wrap:wrap; margin-top:0.75rem;">
+            <a role="button" class="secondary" href="{% url 'category_edit' c.id %}">Edit</a>
+
+            {# Optional: keep delete button, but it will guard quests #}
+            <a role="button" class="contrast" href="{% url 'category_delete' c.id %}">Delete</a>
+
+            {# Optional: if you have category_detail page #}
+            {# <a href="{% url 'category_detail' c.id %}">View quests</a> #}
+          </footer>
+        </article>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p style="margin-top:1rem;">No categories yet.</p>
+    <p><a href="{% url 'category_create' %}">Create your first category</a></p>
+  {% endif %}
+{% endblock %}
