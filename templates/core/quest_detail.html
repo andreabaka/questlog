@@ -12,7 +12,7 @@
           <span class="badge ended">Ended</span>
         {% endif %}
       </h1>
-      
+
       <p style="margin:0.25rem 0 0; opacity:0.85;">
         <small>
           Category: {% if quest.category %}<strong>{{ quest.category.name }}</strong>{% else %}—{% endif %}
@@ -21,30 +21,23 @@
       </p>
     </div>
 
-   <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
-    {% if quest.is_active %}
-      <a role="button" href="{% url 'logger_start' quest.id %}">Start</a>
-    {% endif %}
+    <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+      {% if quest.is_active %}
+        <a role="button" href="{% url 'logger_start' quest.pk %}">Start</a>
+      {% endif %}
 
-    <a role="button" class="secondary" href="{% url 'quest_edit' quest.id %}">Edit</a>
+      <a role="button" class="secondary" href="{% url 'quest_edit' quest.pk %}">Edit</a>
 
-    <form method="post" action="{% url 'quest_delete' quest.id %}" style="display:inline;">
-      {% csrf_token %}
-      <button type="submit" class="secondary" onclick="return confirm('Delete this quest? This cannot be undone.');">
-        Delete
-      </button>
-    </form>
+      <form method="post" action="{% url 'quest_delete' quest.pk %}" style="display:inline;">
+        {% csrf_token %}
+        <button type="submit" class="secondary"
+                onclick="return confirm('Delete this quest? This cannot be undone.');">
+          Delete
+        </button>
+      </form>
 
-    <a role="button" class="secondary" href="{% url 'quest_list' %}">← Back</a>
-  </div>
-    <div style="display:flex; gap:0.5rem; align-items:center;">
-        <form method="post" action="{% url 'logger_delete' log.id %}" style="display:inline;">
-          {% csrf_token %}
-          <button type="submit" class="secondary" onclick="return confirm('Delete this log entry?');">
-            Delete
-          </button>
-        </form>
-      </div>
+      <a role="button" class="secondary" href="{% url 'quest_list' %}">← Back</a>
+    </div>
   </header>
 
   {% if quest.notes %}
@@ -96,19 +89,19 @@
       <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
         <a role="button"
            class="{% if range == 'recent' %}primary{% else %}secondary{% endif %}"
-           href="{% url 'quest_detail' quest.id %}?range=recent">
+           href="{% url 'quest_detail' quest.pk %}?range=recent">
           Recent
         </a>
 
         <a role="button"
            class="{% if range == 'week' %}primary{% else %}secondary{% endif %}"
-           href="{% url 'quest_detail' quest.id %}?range=week">
+           href="{% url 'quest_detail' quest.pk %}?range=week">
           This week
         </a>
 
         <a role="button"
            class="{% if range == 'all' %}primary{% else %}secondary{% endif %}"
-           href="{% url 'quest_detail' quest.id %}?range=all">
+           href="{% url 'quest_detail' quest.pk %}?range=all">
           All time
         </a>
       </div>
@@ -118,15 +111,33 @@
       {% if logs %}
         {% for log in logs %}
           <article style="margin:0; padding:0.75rem;">
-              <div style="display:flex; gap:0.5rem; align-items:center;">
-              <header style="display:flex; justify-content:space-between; gap:1rem; flex-wrap:wrap; align-items:baseline;">
-                <div>
-                  <strong>
-                    <a href="{% url 'logger_detail' log.id %}">
-                      {{ log.timestamp|date:"Y-m-d H:i" }}
-                    </a>
-                  </strong>
+            <header style="display:flex; justify-content:space-between; gap:1rem; flex-wrap:wrap; align-items:baseline;">
+              <div>
+                <strong>
+                  <a href="{% url 'logger_detail' log.pk %}">
+                    {{ log.timestamp|date:"Y-m-d H:i" }}
+                  </a>
+                </strong>
+                <div style="opacity:0.8;">
+                  <small>
+                    {% if log.completed %}Completed ✅{% else %}In progress{% endif %}
+                    · Payout: {{ log.payout|default:"—" }}
+                  </small>
+                </div>
+              </div>
 
+              <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+                <a role="button" class="secondary" href="{% url 'logger_edit' log.pk %}">Edit</a>
+
+                <form method="post" action="{% url 'logger_delete' log.pk %}" style="display:inline;">
+                  {% csrf_token %}
+                  <button type="submit" class="secondary"
+                          onclick="return confirm('Delete this log entry?');">
+                    Delete
+                  </button>
+                </form>
+              </div>
+            </header>
 
             {% if log.notes %}
               <p style="margin:0.5rem 0 0; opacity:0.9;">
