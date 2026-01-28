@@ -13,8 +13,13 @@ python manage.py createsuperuser
 python manage.py runserver
 
 
+git init
 git status
 git add .
 git commit -m "UPDATE MADE"
 git branch
 git push origin main
+
+###Copy and past SSH Command
+python manage.py migrate
+python manage.py createsuperuser

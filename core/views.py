@@ -699,3 +699,6 @@ def logger_delete(request, pk):
     quest_id = log.quest_id  # your FK is named quest, so this works
     log.delete()
     return redirect("quest_detail", pk=quest_id)
+
+def healthz(request):
+    return HttpResponse("ok", content_type="text/plain")

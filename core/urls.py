@@ -45,6 +45,7 @@ urlpatterns = [
     path("stats/", views.stats_page, name="stats"),
     # Django auth (login / logout)
     path("accounts/", include("django.contrib.auth.urls")),
+    path("healthz/", views.healthz, name="healthz"),
 
 
 

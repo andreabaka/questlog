@@ -30,7 +30,11 @@ def env_list(name: str, default: list[str] | None = None) -> list[str]:
 # --- Core security settings ---
 SECRET_KEY = os.environ.get("SECRET_KEY", "dev-only-insecure-secret-key")
 
-DEBUG = env_bool("DEBUG", default=False)
+DEBUG = env_bool("DEBUG", default=True)
+
+# ✅ Prevent accidental SQLite in production
+if not DEBUG and not os.environ.get("DATABASE_URL"):
+    raise RuntimeError("DATABASE_URL is required in production")
 
 ALLOWED_HOSTS = env_list("ALLOWED_HOSTS", default=[])
 
