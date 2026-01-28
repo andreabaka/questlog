@@ -99,3 +99,5 @@ class LoggerForm(forms.ModelForm):
             return int(payout)
         except (TypeError, ValueError):
             raise forms.ValidationError("Payout must be an integer.")
+        
+        

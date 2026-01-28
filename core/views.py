@@ -644,3 +644,58 @@ def stats_page(request):
         "by_category": by_category,
     }
     return render(request, "core/stats.html", context)
+
+@login_required
+def quest_delete_confirm(request, pk):
+    quest = get_object_or_404(Quest, pk=pk)
+    return render(request, "core/quest_confirm_delete.html", {"quest": quest})
+
+@login_required
+@require_POST
+def quest_delete(request, pk):
+    quest = get_object_or_404(Quest, pk=pk)
+    quest.delete()
+    return redirect("quest_list")
+
+@login_required
+def logger_delete_confirm(request, pk):
+    log = get_object_or_404(Logger, pk=pk)
+    return render(request, "core/logger_confirm_delete.html", {"log": log})
+
+@login_required
+@require_POST
+def logger_delete(request, pk):
+    log = get_object_or_404(Logger, pk=pk)
+    log.delete()
+    return redirect("log_list")
+
+@login_required
+@require_POST
+def quest_delete(request, pk):
+    quest = get_object_or_404(Quest, pk=pk)
+    quest.delete()
+    return redirect("quest_list")
+
+
+@login_required
+def logger_edit(request, pk):
+    log = get_object_or_404(Logger, pk=pk)
+
+    if request.method == "POST":
+        form = LoggerForm(request.POST, instance=log)
+        if form.is_valid():
+            form.save()
+            return redirect("logger_detail", pk=log.pk)
+    else:
+        form = LoggerForm(instance=log)
+
+    return render(request, "core/logger_edit.html", {"log": log, "form": form})
+
+
+@login_required
+@require_POST
+def logger_delete(request, pk):
+    log = get_object_or_404(Logger, pk=pk)
+    quest_id = log.quest_id  # your FK is named quest, so this works
+    log.delete()
+    return redirect("quest_detail", pk=quest_id)

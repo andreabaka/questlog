@@ -11,6 +11,7 @@ urlpatterns = [
     path("quests/new/", views.quest_create, name="quest_create"),
     path("quests/<uuid:pk>/", views.quest_detail, name="quest_detail"),
     path("quests/<uuid:pk>/edit/", views.quest_edit, name="quest_edit"),
+    path("quests/<uuid:pk>/delete/", views.quest_delete, name="quest_delete"),
     path("active/", views.active_quests_page, name="active_quests"),
     path("active/partial/", views.active_quests_partial, name="active_quests_partial"),
 
@@ -25,6 +26,8 @@ urlpatterns = [
     path("logger/<uuid:pk>/toggle-completed/", views.logger_toggle_completed, name="logger_toggle_completed"),
     path("logger/<uuid:pk>/update-payout/", views.logger_update_payout, name="logger_update_payout"),
     path("logger/<uuid:pk>/roll_payout/", views.logger_roll_payout, name="logger_roll_payout"),
+    path("logger/<uuid:pk>/edit/", views.logger_edit, name="logger_edit"),
+    path("logger/<uuid:pk>/delete/", views.logger_delete, name="logger_delete"),
 
 
 
