@@ -535,15 +535,21 @@ def today_page(request):
 
     picked_ids = request.session.get(session_key)
 
+    # Always store UUIDs as strings in session (JSON-safe)
     if shuffle or not picked_ids:
-        all_ids = list(qs.values_list("id", flat=True))
+        all_ids = [str(x) for x in qs.values_list("id", flat=True)]
+
         if len(all_ids) <= 3:
             picked_ids = all_ids
         else:
             picked_ids = random.sample(all_ids, 3)
+
         request.session[session_key] = picked_ids
 
-    # Fetch quests in the same order as picked_ids
+    # Ensure picked_ids is a list of strings (even if session had weird types)
+    picked_ids = [str(x) for x in (picked_ids or [])]
+
+    # Fetch quests in the same order as picked_ids (UUIDField-safe)
     if picked_ids:
         order = Case(*[When(id=pk, then=pos) for pos, pk in enumerate(picked_ids)])
         quests = list(qs.filter(id__in=picked_ids).order_by(order))
@@ -578,6 +584,7 @@ def today_page(request):
         "today_start": today_start,
     }
     return render(request, "core/today.html", context)
+
 
 @login_required
 def stats_page(request):
