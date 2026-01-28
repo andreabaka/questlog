@@ -19,13 +19,20 @@ def env_bool(name: str, default: bool = False) -> bool:
     return val.strip().lower() in ("1", "true", "yes", "y", "on")
 
 
-def env_list(name: str, default=None):
-    if default is None:
-        default = []
-    val = os.environ.get(name)
-    if not val:
-        return default
-    return [item.strip() for item in val.split(",") if item.strip()]
+def env_list(name: str) -> list[str]:
+    raw = os.getenv(name, "")
+    return [item.strip() for item in raw.split(",") if item.strip()]
+
+ALLOWED_HOSTS = env_list("ALLOWED_HOSTS")
+
+# Optional: allow Railway default subdomain wildcard to reduce friction
+RAILWAY_STATIC = os.getenv("RAILWAY_STATIC_URL", "").strip()
+if RAILWAY_STATIC:
+    ALLOWED_HOSTS.append(RAILWAY_STATIC)
+
+# Dev fallback
+if not ALLOWED_HOSTS and os.getenv("DEBUG", "0") == "1":
+    ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
 
 
 # --- Core security settings ---
