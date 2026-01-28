@@ -19,49 +19,37 @@ def env_bool(name: str, default: bool = False) -> bool:
     return val.strip().lower() in ("1", "true", "yes", "y", "on")
 
 
-def env_list(name: str) -> list[str]:
+def env_list(name: str, default: list[str] | None = None) -> list[str]:
     raw = os.getenv(name, "")
-    return [item.strip() for item in raw.split(",") if item.strip()]
+    items = [item.strip() for item in raw.split(",") if item.strip()]
+    if items:
+        return items
+    return default or []
 
-ALLOWED_HOSTS = env_list("ALLOWED_HOSTS")
 
-# Optional: allow Railway default subdomain wildcard to reduce friction
+# --- Core security settings ---
+SECRET_KEY = os.environ.get("SECRET_KEY", "dev-only-insecure-secret-key")
+
+DEBUG = env_bool("DEBUG", default=False)
+
+ALLOWED_HOSTS = env_list("ALLOWED_HOSTS", default=[])
+
+# Allow Railway-provided hostname if present
 RAILWAY_STATIC = os.getenv("RAILWAY_STATIC_URL", "").strip()
 if RAILWAY_STATIC:
     ALLOWED_HOSTS.append(RAILWAY_STATIC)
 
-# Dev fallback
-if not ALLOWED_HOSTS and os.getenv("DEBUG", "0") == "1":
-    ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
-
-
-# --- Core security settings ---
-# IMPORTANT: Set SECRET_KEY in Render env vars for production.
-# Keep the fallback for local dev only.
-SECRET_KEY = os.environ.get("SECRET_KEY", "dev-only-insecure-secret-key")
-
-DEBUG = env_bool("DEBUG", default=True)
-
-# Render: set ALLOWED_HOSTS="your-app.onrender.com"
-ALLOWED_HOSTS = env_list("ALLOWED_HOSTS", default=[])
-
+# Local dev convenience
 if DEBUG:
-    # Helpful for local dev
     ALLOWED_HOSTS += ["localhost", "127.0.0.1"]
 
-
-# Render / PaaS HTTPS proxy header
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
-# In production you can enable these (recommended).
-# If you want to be extra cautious during first deploy, you can add them Day 3.
 if not DEBUG:
     SECURE_SSL_REDIRECT = True
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
 
-
-# CSRF trusted origins must include scheme, e.g. https://your-app.onrender.com
 CSRF_TRUSTED_ORIGINS = env_list("CSRF_TRUSTED_ORIGINS", default=[])
 
 
