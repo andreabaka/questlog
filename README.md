@@ -8,6 +8,7 @@ Personal quest + logging app built with Django.
 python -m venv .venv
 .venv\Scripts\activate   # Windows
 pip install django
+python manage.py makemigrations
 python manage.py migrate
 python manage.py createsuperuser
 python manage.py runserver

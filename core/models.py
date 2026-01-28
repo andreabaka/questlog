@@ -1,5 +1,7 @@
 import uuid
 from django.db import models
+from django.utils.timezone import now
+
 
 class QuestQuerySet(models.QuerySet):
     def active(self):
@@ -54,7 +56,7 @@ class Quest(models.Model):
     )
 
 
-    start_date = models.DateField(null=True, blank=True)
+    start_date = models.DateField(null=True, blank=True, default=now)
     end_date = models.DateField(null=True, blank=True)
     limited_mobility = models.BooleanField(default=False)
     notes = models.TextField(blank=True)
