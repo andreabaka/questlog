@@ -40,7 +40,6 @@ urlpatterns = [
     #today Stats etc
     path("today/", views.today_page, name="today"),
     path("stats/", views.stats_page, name="stats"),
-    path("admin/", admin.site.urls),
     # Django auth (login / logout)
     path("accounts/", include("django.contrib.auth.urls")),
 
